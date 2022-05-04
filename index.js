@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, GridFSBucket, ObjectId } = require('mongodb');
 const app = express()
 require('dotenv').config()
 const port = process.env.PORT || 5000
@@ -28,7 +28,39 @@ async function run() {
         await client.connect()
         const groceryCollection = client.db("groceryManagement").collection("grocery")
 
-        //need write function here...
+        //all data api
+        app.get('/grocery', async (req, res) => {
+            const query = {}
+            const cursor = groceryCollection.find(query);
+            // const grocery = await cursor.toArray()
+            const number = 6
+            const grocery = await cursor.limit(number).toArray()
+            res.send(grocery)
+        })
+
+        //single data api
+        app.get('/grocery/:id', async (req, res) => {
+            const id = req.params.id
+            const query = { _id: ObjectId(id) };
+            const result = await groceryCollection.findOne(query);
+            res.send(result)
+        })
+
+        //update data api
+        app.put('/grocery/:id', async (req, res) => {
+            const id = req.params.id
+
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: req.body,
+            };
+            const result = await groceryCollection.updateOne(filter, updateDoc, options);
+            res.send(result)
+
+
+
+        })
     }
     finally { }
 }
