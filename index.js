@@ -75,7 +75,7 @@ async function run() {
             res.send(result)
         })
 
-        // post  api for add new item
+        // post  api for add a new item
         app.post('/groceries', async (req, res) => {
             const groceryProduct = req.body
             const result = await groceryCollection.insertOne(groceryProduct);
