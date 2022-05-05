@@ -24,7 +24,7 @@ async function run() {
         await client.connect()
         const groceryCollection = client.db("groceryManagement").collection("grocery")
 
-        //all data api
+        //maximun 6 data api
         app.get('/grocery', async (req, res) => {
             const query = {}
             const cursor = groceryCollection.find(query);
@@ -33,6 +33,8 @@ async function run() {
             const grocery = await cursor.limit(number).toArray()
             res.send(grocery)
         })
+
+
 
         //single data api
         app.get('/grocery/:id', async (req, res) => {
@@ -53,6 +55,23 @@ async function run() {
                 $set: update
             };
             const result = await groceryCollection.updateOne(filter, updateDoc, options);
+            res.send(result)
+        })
+
+        //all data api
+        app.get('/groceries', async (req, res) => {
+            const query = {}
+            const cursor = groceryCollection.find(query);
+            // const grocery = await cursor.toArray()
+            const grocery = await cursor.toArray()
+            res.send(grocery)
+        })
+
+        //delete single item api
+        app.delete('/groceries/:id', async (req, res) => {
+            const id = req.params.id
+            const query = { _id: ObjectId(id) };
+            const result = await groceryCollection.deleteOne(query);
             res.send(result)
         })
     }
