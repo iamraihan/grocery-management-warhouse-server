@@ -74,6 +74,13 @@ async function run() {
             const result = await groceryCollection.deleteOne(query);
             res.send(result)
         })
+
+        // post  api for add new item
+        app.post('/groceries', async (req, res) => {
+            const groceryProduct = req.body
+            const result = await groceryCollection.insertOne(groceryProduct);
+            res.send(result)
+        })
     }
     finally { }
 }
