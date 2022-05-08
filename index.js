@@ -67,7 +67,8 @@ async function run() {
         //all data api
         app.get('/groceries', async (req, res) => {
             const tokenInfo = req.headers.authorization
-            const [email, accessToken] = tokenInfo.split(' ')
+            const [email, accessToken] = tokenInfo?.split(' ')
+            console.log(email, accessToken);
 
             const decoded = verifyToken(accessToken);
             console.log(decoded);
@@ -122,8 +123,6 @@ function verifyToken(token) {
             console.log(decoded);
             email = decoded
         }
-
-
     });
     return email
 }
