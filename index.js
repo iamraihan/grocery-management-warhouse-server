@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { MongoClient, ServerApiVersion, GridFSBucket, ObjectId } = require('mongodb');
+const jwt = require('jsonwebtoken');
 const app = express()
 require('dotenv').config()
 const port = process.env.PORT || 5000
@@ -24,6 +25,12 @@ async function run() {
         await client.connect()
         const groceryCollection = client.db("groceryManagement").collection("grocery")
 
+        app.post('/login', (req, res) => {
+            const email = req.body
+            const token = jwt.sign(email, process.env.ACCESS_TOKEN_ACCESS);
+            res.send({ token })
+
+        })
         //maximun 6 data api
         app.get('/grocery', async (req, res) => {
             const query = {}
@@ -60,11 +67,20 @@ async function run() {
 
         //all data api
         app.get('/groceries', async (req, res) => {
-            const query = {}
-            const cursor = groceryCollection.find(query);
-            // const grocery = await cursor.toArray()
-            const grocery = await cursor.toArray()
-            res.send(grocery)
+            const tokenInfo = req.headers.authorization
+            const [email, accessToken] = tokenInfo.split(' ')
+
+            const decoded = verifyToken(accessToken);
+            console.log(decoded);
+            if (email === decoded.email) {
+                const query = {}
+                const cursor = groceryCollection.find(query);
+                const grocery = await cursor.toArray()
+                res.send(grocery)
+            } else {
+                res.send({ success: 'Unauthorized Access' })
+            }
+
         })
 
         //delete single item api
@@ -95,3 +111,20 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
     console.log('grocery backend')
 })
+
+
+function verifyToken(token) {
+    let email
+    jwt.verify(token, process.env.ACCESS_TOKEN_ACCESS, function (err, decoded) {
+        console.log(decoded.foo) // bar
+        if (err) {
+            email = 'Invalid Email'
+        } if (decoded) {
+            console.log(decoded);
+            email = decoded
+        }
+
+
+    });
+    return email
+}
