@@ -115,7 +115,7 @@ app.listen(port, () => {
 function verifyToken(token) {
     let email
     jwt.verify(token, process.env.ACCESS_TOKEN_ACCESS, function (err, decoded) {
-        console.log(decoded.foo) // bar
+        // console.log(decoded.foo) 
         if (err) {
             email = 'Invalid Email'
         } if (decoded) {
